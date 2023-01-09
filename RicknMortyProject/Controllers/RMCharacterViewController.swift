@@ -9,22 +9,30 @@ import UIKit
 
 class RMCharacterViewController: UIViewController {
 
+    let charactersListView: RMCharactersListView = {
+        var view = RMCharactersListView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
         title = "Characters"
+        view.addSubview(charactersListView)
         
-        RMService.shared.execute(.listCharactersRequest, expecting: RMGetAllCharactersResponse.self) { result in
-            switch result {
-            case .success(let model):
-                print("Total: \(model.info.count)")
-                print("Pages: \(model.results.count)")
-            case .failure(let error):
-                print(String(describing: error))
-            }
-            
-        }
+        addConstraints()
+        
+    }
+    
+    func addConstraints() {
+        NSLayoutConstraint.activate([
+            charactersListView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            charactersListView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            charactersListView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
+            charactersListView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
+        ])
     }
     
 }
