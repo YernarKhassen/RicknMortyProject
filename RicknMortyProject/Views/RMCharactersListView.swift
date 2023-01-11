@@ -7,9 +7,17 @@
 
 import UIKit
 
+protocol RMCharactersListViewProtocol: AnyObject {
+    func rmCharactersListView(_ charactersListView: RMCharactersListView, didSelectCharacter character: RMCharacter)
+}
+
 class RMCharactersListView: UIView {
 
+    public weak var delegate: RMCharactersListViewProtocol?
+    
     private let viewModel = RMCharatersListViewViewModel()
+    
+    // MARK: - Views
     
     private let spinner: UIActivityIndicatorView = {
         var spinner = UIActivityIndicatorView()
@@ -21,7 +29,7 @@ class RMCharactersListView: UIView {
     private let charactersCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isHidden = true
         collectionView.alpha = 0
@@ -29,6 +37,8 @@ class RMCharactersListView: UIView {
         collectionView.register(RMCharacterCollectionViewCell.self, forCellWithReuseIdentifier: RMCharacterCollectionViewCell.cellIdentifier)
         return collectionView
     }()
+    
+    // MARK: - Init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,6 +56,8 @@ class RMCharactersListView: UIView {
     required init?(coder: NSCoder) {
         fatalError("Unsupported")
     }
+    
+    // MARK: - Methods
     
     func setupViews() {
         [charactersCollectionView, spinner].forEach{
@@ -77,7 +89,13 @@ class RMCharactersListView: UIView {
     }
 }
 
+// MARK: - RMCharactersListViewViewModelDelegate
+
 extension RMCharactersListView: RMCharactersListViewViewModelDelegate {
+    func didSelectCharacter(_ character: RMCharacter) {
+        delegate?.rmCharactersListView(self, didSelectCharacter: character)
+    }
+    
     func didLoadInitialCharacters() {
         spinner.stopAnimating()
         charactersCollectionView.isHidden = false

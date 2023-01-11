@@ -49,6 +49,8 @@ final class RMCharacterCollectionViewCell: UICollectionViewCell {
         fatalError("Unsupported")
     }
     
+    // MARK: - Methods
+    
     func setup() {
         setupViews()
         setupLayer()

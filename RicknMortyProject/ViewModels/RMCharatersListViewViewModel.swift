@@ -9,6 +9,7 @@ import UIKit
 
 protocol RMCharactersListViewViewModelDelegate: AnyObject {
     func didLoadInitialCharacters()
+    func didSelectCharacter(_ character: RMCharacter)
 }
 
 final class RMCharatersListViewViewModel: NSObject {
@@ -26,12 +27,16 @@ final class RMCharatersListViewViewModel: NSObject {
     
     private var celllViewModels: [RMCharacterCollectionViewCellViewModel] = []
     
+    private var apiInfo: RMGetAllCharactersResponse.Info? = nil
+    
     public func fetchCharacters() {
         RMService.shared.execute(.listCharactersRequest, expecting: RMGetAllCharactersResponse.self) { [weak self] result in
             switch result {
             case .success(let resultsModel):
                 let results = resultsModel.results
+                let info = resultsModel.info
                 self?.characters = results
+                self?.apiInfo = info
                 DispatchQueue.main.async {
                     self?.delegate?.didLoadInitialCharacters()
                 }
@@ -41,7 +46,17 @@ final class RMCharatersListViewViewModel: NSObject {
             
         }
     }
+    
+    public func fetchAdditionalCharacters() {
+        // Fetch Characters
+    }
+    
+    public var shouldShowLoadMoreIndicator: Bool {
+        return apiInfo?.next != nil
+    }
 }
+
+// MARK: - CollectionView
 
 extension RMCharatersListViewViewModel: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
@@ -66,5 +81,17 @@ extension RMCharatersListViewViewModel: UICollectionViewDataSource, UICollection
         return CGSize(width: width, height: width*1.5)
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let character = characters[indexPath.row]
+        delegate?.didSelectCharacter(character)
+    }
     
+}
+
+extension RMCharatersListViewViewModel: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard shouldShowLoadMoreIndicator else {
+            return
+        }
+    }
 }
